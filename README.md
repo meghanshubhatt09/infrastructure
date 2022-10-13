@@ -33,6 +33,10 @@ $ aws --region us-east-1 cloudformation create-stack --stack-name myvpc --templa
 --parameters ParameterKey=SubnetRegion1,ParameterValue="us-east-1a" ParameterKey=SubnetRegion2,ParameterValue="us-east-1b" ParameterKey=SubnetRegion3,ParameterValue="us-east-1c"
 
 
+
+aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml --parameters ParameterKey=SubnetRegion1,ParameterValue="us-east-1c" ParameterKey=SubnetRegion2,ParameterValue="us-east-1b" ParameterKey=SubnetRegion3,ParameterValue="us-east-1a" ParameterKey=CidrBlock1,ParameterValue="10.0.3.0/24" ParameterKey=CidrBlock2,ParameterValue="10.0.1.0/24" ParameterKey=CidrBlock3,ParameterValue="10.0.2.0/24"  
+
+
 $ aws cloudformation delete-stack --stack-name myvpc 
 
 ## AWS CLI
