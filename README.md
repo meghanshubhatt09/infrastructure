@@ -16,16 +16,22 @@ AWS CloudFormation is a service that gives developers and businesses an easy way
 
 ### How to set and configured AWS ?
 $ curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+
 $ sudo installer -pkg AWSCLIV2.pkg -target /
 
 aws configure --profile [profileName]
+
 Set the information
 
 Setting up the infrastructure in dev account:
+
 $ export AWS_PROFILE=dev
+
 $ aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml
 
+
 --parameters ParameterKey=SubnetRegion1,ParameterValue="us-east-1a" ParameterKey=SubnetRegion2,ParameterValue="us-east-1b" ParameterKey=SubnetRegion3,ParameterValue="us-east-1c"
+
 
 $ aws cloudformation delete-stack --stack-name myvpc 
 
