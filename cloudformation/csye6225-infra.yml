@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: VPCTemplate
+Parameters:
+  VpcCidrBlock:
+    Description: "CIDR block for VPC"
+    Type: String
+    Default: "10.0.0.0/16"
+
+  SubnetRegion1:
+    Description: "Subnet Region 1"
+    Type: String
+    Default: "us-east-1a" 
+
+  CidrBlock1:
+    Description: "Cidr Block 1"
+    Type: String
+    Default: "10.0.1.0/24"
+
+  SubnetRegion2:
+    Description: "Subnet Region 2"
+    Type: String
+    Default: "us-east-1b" 
+
+  CidrBlock2:
+    Description: "Cidr Block 3"
+    Type: String
+    Default: "10.0.2.0/24"
+
+  SubnetRegion3:
+    Description: "Subnet Region 3"
+    Type: String
+    Default: "us-east-1c" 
+    
+  CidrBlock3:
+    Description: "Cidr Block 3"
+    Type: String
+    Default: "10.0.3.0/24"
+
+Resources:
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidrBlock
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      InstanceTenancy: 'default'
+      Tags:
+      - Key: Name
+        Value: !Ref AWS::StackName
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref myVPC
+
+  mySubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: myVPC
+      CidrBlock: !Ref CidrBlock1
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Ref SubnetRegion1  #"us-east-1a"
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName} Public Subnet 1
+
+  mySubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: myVPC
+      CidrBlock: !Ref CidrBlock2
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Ref SubnetRegion2  #"us-east-1b"
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName} Public Subnet 2
+
+  mySubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: myVPC
+      CidrBlock: !Ref CidrBlock3
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Ref SubnetRegion3  #"us-east-1c"
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName} Public Subnet 3
+
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref myVPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName} Public Routes
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref mySubnet1
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref mySubnet2
+
+  PublicSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref mySubnet3
+
+
+Outputs:
+    VpcId:
+      Description: The VPC ID
+      Value: !Ref myVPC
+    SubnetId:
+      Description: List of public subnets
+      Value: !Join [ ",", [ !Ref mySubnet1, !Ref mySubnet2, !Ref mySubnet3 ]]
+     
