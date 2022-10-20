@@ -1,6 +1,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: VPCTemplate
 Parameters:
+
+  UserData:
+    Type: String
+    Default: ""
+
   VpcCidrBlock:
     Description: "CIDR block for VPC"
     Type: String
@@ -35,6 +40,11 @@ Parameters:
     Description: "Cidr Block 3"
     Type: String
     Default: "10.0.3.0/24"
+
+Mappings: 
+  RegionMap: 
+    us-east-1: 
+      "AMI": "ami-0516ab904f1f55f5c"
 
 Resources:
   myVPC:
@@ -133,6 +143,72 @@ Resources:
       SubnetId: !Ref mySubnet3
 
 
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: 
+        Ref: myVPC
+      GroupDescription: Allow http to client host
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8081
+          ToPort: 8081
+          CidrIp: 0.0.0.0/0
+
+  # Volume:
+  #   Type: AWS::EC2::Volume
+  #   Properties: 
+  #     Size: 50
+  #     VolumeType: GP2
+  #     AvailabilityZone: !GetAtt Ec2Instance.AvailabilityZone
+
+  Ec2Instance: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      InstanceType: t2.micro
+      DisableApiTermination: false
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      KeyName: aws
+      SecurityGroupIds: 
+        - !Ref InstanceSecurityGroup
+      SubnetId: !Ref mySubnet1
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvdb
+          Ebs:
+            VolumeSize: 50
+            VolumeType: "gp2"
+            DeleteOnTermination: "true"
+      UserData:
+        Fn::Base64: !Sub | 
+            #!/bin/bash
+            echo "JAVA PATH"
+            # /usr/lib/jvm/java-17-openjdk-amd64/
+            export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/
+            export PATH=$PATH:$JAVA_HOME/bin
+            export CATALINA_HOME=/opt/tomcat/apache-tomcat-10.0.27
+            export CATALINA_BASE=$CATALINA_HOME
+            $CATALINA_HOME/bin/startup.sh
+            sudo service mysql start
+            # echo "Running Application"
+            java -jar /home/ubuntu/webapp-0.0.1-SNAPSHOT.jar
+
+
 Outputs:
     VpcId:
       Description: The VPC ID
@@ -140,4 +216,9 @@ Outputs:
     SubnetId:
       Description: List of public subnets
       Value: !Join [ ",", [ !Ref mySubnet1, !Ref mySubnet2, !Ref mySubnet3 ]]
+
+# aws cloudformation create-stack --stack-name example --template-body file://example.yml 
+#--parameters ParameterKey=UserData,ParameterValue=$(base64 -w0 setup-lnxcfg-user)
+
+# aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml --parameters ParameterKey=UserData,ParameterValue=$(base64 -w0 startup)
      
