@@ -46,6 +46,7 @@ Parameters:
     Type: String
     Default: ""
 
+
 # Mappings: 
 #   RegionMap: 
 #     us-east-1: 
@@ -189,7 +190,7 @@ Resources:
       InstanceType: t2.micro
       DisableApiTermination: false
       ImageId: !Ref AMIID
-      KeyName: aws
+      #KeyName: aws
       SecurityGroupIds: 
         - !Ref InstanceSecurityGroup
       SubnetId: !Ref mySubnet1
