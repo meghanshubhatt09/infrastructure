@@ -27,9 +27,9 @@ Set the information
 
 $ export AWS_PROFILE=dev
 
+aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml --parameters ParameterKey=AMIID,ParameterValue="ami-0edf2387362d190b2"
+
 $ aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml
-
-
 --parameters ParameterKey=SubnetRegion1,ParameterValue="us-east-1a" ParameterKey=SubnetRegion2,ParameterValue="us-east-1b" ParameterKey=SubnetRegion3,ParameterValue="us-east-1c"
 
 
