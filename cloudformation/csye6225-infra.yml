@@ -41,10 +41,15 @@ Parameters:
     Type: String
     Default: "10.0.3.0/24"
 
-Mappings: 
-  RegionMap: 
-    us-east-1: 
-      "AMI": "ami-0516ab904f1f55f5c"
+  AMIID:
+    Description: "AMI ID"
+    Type: String
+    Default: ""
+
+# Mappings: 
+#   RegionMap: 
+#     us-east-1: 
+#       "AMI": "ami-0516ab904f1f55f5c"
 
 Resources:
   myVPC:
@@ -166,10 +171,10 @@ Resources:
           FromPort: 8080
           ToPort: 8080
           CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 8081
-          ToPort: 8081
-          CidrIp: 0.0.0.0/0
+        # - IpProtocol: tcp
+        #   FromPort: 8081
+        #   ToPort: 8081
+        #   CidrIp: 0.0.0.0/0
 
   # Volume:
   #   Type: AWS::EC2::Volume
@@ -183,7 +188,7 @@ Resources:
     Properties: 
       InstanceType: t2.micro
       DisableApiTermination: false
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      ImageId: !Ref AMIID
       KeyName: aws
       SecurityGroupIds: 
         - !Ref InstanceSecurityGroup
