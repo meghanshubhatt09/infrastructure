@@ -16,7 +16,9 @@ AWS CloudFormation is a service that gives developers and businesses an easy way
 ## ASSIGNMENT 5
 -   Commands 
 aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml --parameters ParameterKey=AMIID,ParameterValue="ami-09e97ba7ca1df5817" ParameterKey=KeyName,ParameterValue="aws" --capabilities CAPABILITY_NAMED_IAM
+
 aws s3 rm s3://meghanshu-buckets3-csye6225-0e7c67f970e5-us-east-1 --recursive
+
 aws cloudformation delete-stack --stack-name myvpc
 
 ### How to set and configured AWS ?
