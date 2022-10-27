@@ -334,6 +334,14 @@ Resources:
         - !Ref mySubnetPrivate1
         - !Ref mySubnetPrivate2
 
+  #Always create a custom parameter group for DB
+  MYSqlDBParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description: SQL custom param group
+      Family: mysql8.0
+  #RDS instance
+
   RDSDBinstance: 
     Type: AWS::RDS::DBInstance
     Properties: 
@@ -349,6 +357,7 @@ Resources:
         Ref: rdsdbSubnetGroupId
       VPCSecurityGroups:
       - Ref: DBSecurityGroup
+      DBParameterGroupName: !Ref MYSqlDBParameterGroup
       PubliclyAccessible: false
       DBName: csye6225
     DeletionPolicy: Delete
@@ -454,6 +463,7 @@ Resources:
                  - s3:PutObject
                  - s3:DeleteObject
                  - s3:DeleteBucket
+                 - s3:ListBucket
                 Resource:
                   - !Join ["", ["arn:aws:s3:::", !Ref RecordServiceS3Bucket]]
                   - !Join ["", ["arn:aws:s3:::", !Ref RecordServiceS3Bucket, "/*"]]
