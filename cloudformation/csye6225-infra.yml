@@ -249,7 +249,7 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       DestinationCidrBlock: 0.0.0.0/0
-      #GatewayId: !Ref InternetGateway
+      GatewayId: !Ref InternetGateway
 
 
 # PUBLIC ATTACHMENTS
@@ -380,6 +380,7 @@ Resources:
       SecurityGroupIds: 
         - !Ref InstanceSecurityGroup
       SubnetId: !Ref mySubnet1
+      IamInstanceProfile: !Ref RootInstanceProfile
       BlockDeviceMappings:
         - DeviceName: /dev/xvdb
           Ebs:
@@ -395,8 +396,7 @@ Resources:
           sudo echo server.port=8080 >> /home/ubuntu/application.properties
           sudo echo cloud.aws.region.static=us-east-1 >> /home/ubuntu/application.properties
           sudo echo cloud.aws.stack.auto=false >> /home/ubuntu/application.properties
-          sudo echo cloud.aws.credentials.access-key=${Accesskey} >> /home/ubuntu/application.properties
-          sudo echo cloud.aws.credentials.secret-key=${SecretAccessKey} >> /home/ubuntu/application.properties
+          sudo echo cloud.aws.profile=${RootInstanceProfile} >> /home/ubuntu/application.properties
           sudo echo spring.session.jdbc.initialize-schema=always  >> /home/ubuntu/application.properties
           sudo echo app.awsServices.bucketName=${S3BucketName} >> /home/ubuntu/application.properties
           sudo echo spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver >> /home/ubuntu/application.properties
@@ -427,7 +427,7 @@ Resources:
               SSEAlgorithm: AES256
       LifecycleConfiguration:
         Rules:
-          - Id: StandardRule
+          - Id: ChangingStorageClassFromStandardToStandardIA
             Status: Enabled
             Transitions:
               - TransitionInDays: 30
@@ -437,54 +437,42 @@ Resources:
         Value:
           Fn::Sub: "${AWS::StackName}-S3-Bucket"
 
-  ec2S3RoleId:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Statement:
+  EC2CSYE6225Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
           - Effect: Allow
             Principal:
               Service:
-              - ec2.amazonaws.com
+                - ec2.amazonaws.com
             Action:
-            - sts:AssumeRole
-        Path: "/"
-        RoleName: EC2-CSYE6225
-        Tags:
-        - Key: Name
-          Value:
-            Fn::Sub: "${AWS::StackName}-EC2ExecutionRoleId"
+              - sts:AssumeRole
+      Path: /
+      RoleName: EC2-CSYE6225
+      Policies:
+        - PolicyName: WebAppS3
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                 - s3:GetObject
+                 - s3:PutObject
+                 - s3:DeleteObject
+                Resource:
+                  - !Join ["", ["arn:aws:s3:::", !Ref RecordServiceS3Bucket]]
+                  - !Join ["", ["arn:aws:s3:::", !Ref RecordServiceS3Bucket, "/*"]]
 
-  WebAppS3:
-    Type: AWS::IAM::ManagedPolicy
-    DependsOn: RecordServiceS3Bucket
-    Properties:
-      ManagedPolicyName: EC2-S3-Access
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Sid: AllowGetPutDeleteActionsOnS3Bucket
-          Effect: Allow
-          Action:
-          - s3:PutObject
-          - s3:GetObject
-          - s3:DeleteObject
-          Resource:
-            Fn::Sub:
-            - "${bucketArn}/*"
-            - bucketArn:
-                Fn::GetAtt:
-                - RecordServiceS3Bucket
-                - Arn
-      Roles: 
-        - !Ref ec2S3RoleId
 
   RootInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
+      InstanceProfileName: instance-ec2-profile
       Path: /
       Roles:
-        - !Ref ec2S3RoleId
+        - !Ref EC2CSYE6225Role
 
 
 Outputs:
