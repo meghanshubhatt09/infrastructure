@@ -13,6 +13,11 @@ Amazon Virtual Private Cloud (Amazon VPC) enables you to launch AWS resources in
 AWS CloudFormation is a service that gives developers and businesses an easy way to create a collection of related AWS and third-party resources, and provision and manage them in an orderly and predictable fashion.
 
 ----------------------------
+## ASSIGNMENT 5
+-   Commands 
+aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml --parameters ParameterKey=AMIID,ParameterValue="ami-09e97ba7ca1df5817" ParameterKey=KeyName,ParameterValue="aws" --capabilities CAPABILITY_NAMED_IAM
+aws s3 rm s3://meghanshu-buckets3-csye6225-0e7c67f970e5-us-east-1 --recursive
+aws cloudformation delete-stack --stack-name myvpc
 
 ### How to set and configured AWS ?
 $ curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
@@ -26,6 +31,8 @@ Set the information
 ### Setting up the infrastructure in dev account:
 
 $ export AWS_PROFILE=dev
+
+aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml --parameters ParameterKey=AMIID,ParameterValue="ami-0b9acf9bc14bb349e" ParameterKey=KeyName,ParameterValue="aws" ParameterKey=Accesskey,ParameterValue="" ParameterKey=SecretAccessKey,ParameterValue="" --capabilities CAPABILITY_NAMED_IAM
 
 aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml --parameters ParameterKey=AMIID,ParameterValue="ami-0edf2387362d190b2"
 
