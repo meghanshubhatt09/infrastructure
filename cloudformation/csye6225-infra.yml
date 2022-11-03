@@ -82,6 +82,11 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: must be the name of an existing EC2 KeyPair
 
+  HostedZoneResource:
+    Description: "DNS HOST NAME"
+    Type: String
+    Default: demo.meghanshubhatt.me.
+
 
   # S3BucketName:
   #   Description: "Name of the Bucket"
@@ -362,7 +367,16 @@ Resources:
       DBName: csye6225
     DeletionPolicy: Delete
 
-
+myDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Ref HostedZoneResource
+      Comment: DNS name for my instance
+      Name: !Ref HostedZoneResource
+      Type: A
+      TTL: 900
+      ResourceRecords:
+      - !GetAtt Ec2Instance.PublicIp
 
   # Volume:
   #   Type: AWS::EC2::Volume
@@ -407,7 +421,7 @@ Resources:
           sudo echo spring.jpa.database=MYSQL >> /home/ubuntu/application.properties
           sudo echo spring.jpa.hibernate.ddl-auto=update >> /home/ubuntu/application.properties
           sudo echo spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect >> /home/ubuntu/application.properties
-
+          sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 8080
           java -jar /home/ubuntu/webapp-0.0.1-SNAPSHOT.jar --spring.config.location=file:////home/ubuntu/application.properties
 
 ### S3 BUCKET CREATION
