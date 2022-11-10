@@ -85,7 +85,7 @@ Parameters:
   HostedZoneResource:
     Description: "DNS HOST NAME"
     Type: String
-    Default: dev.meghanshubhatt.me.
+    Default: demo.meghanshubhatt.me.
 
 
   # S3BucketName:
