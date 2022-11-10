@@ -13,6 +13,14 @@ Amazon Virtual Private Cloud (Amazon VPC) enables you to launch AWS resources in
 AWS CloudFormation is a service that gives developers and businesses an easy way to create a collection of related AWS and third-party resources, and provision and manage them in an orderly and predictable fashion.
 
 ----------------------------
+## Assignment 7
+
+Cloudwatch Integration - To collect metric and log
+
+## Assignment 6
+
+Added DNS
+
 ## ASSIGNMENT 5
 -   Commands 
 aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template-body file://csye6225-infra.yml --parameters ParameterKey=AMIID,ParameterValue="ami-09e97ba7ca1df5817" ParameterKey=KeyName,ParameterValue="aws" --capabilities CAPABILITY_NAMED_IAM

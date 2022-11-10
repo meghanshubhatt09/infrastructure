@@ -85,7 +85,7 @@ Parameters:
   HostedZoneResource:
     Description: "DNS HOST NAME"
     Type: String
-    Default: demo.meghanshubhatt.me.
+    Default: dev.meghanshubhatt.me.
 
 
   # S3BucketName:
@@ -421,8 +421,21 @@ Resources:
           sudo echo spring.jpa.database=MYSQL >> /home/ubuntu/application.properties
           sudo echo spring.jpa.hibernate.ddl-auto=update >> /home/ubuntu/application.properties
           sudo echo spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect >> /home/ubuntu/application.properties
+          sudo echo logging.file.name=csye6225.log >> /home/ubuntu/application.properties
+          sudo echo logging.file.path=/home/ubuntu >> /home/ubuntu/application.properties
+          sudo echo logging.level.com.cloud.rest.webservices.webapp.*=INFO >> /home/ubuntu/application.properties
+          sudo echo publish.metrics=true >> /home/ubuntu/application.properties
+          sudo echo metrics.server.hostname=localhost >> /home/ubuntu/application.properties
+          sudo echo metrics.server.port=8125 >> /home/ubuntu/application.properties
           sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 8080
-          java -jar /home/ubuntu/webapp-0.0.1-SNAPSHOT.jar --spring.config.location=file:////home/ubuntu/application.properties
+          sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+          -a fetch-config \
+          -m ec2 \
+          -c file:/home/ubuntu/cloudwatch-config.json \
+          -s
+          java -jar /home/ubuntu/webapp-0.0.1-SNAPSHOT.jar --spring.config.location=file:////home/ubuntu/application.properties &
+
+
 
 ### S3 BUCKET CREATION
   RecordServiceS3Bucket:
@@ -480,7 +493,28 @@ Resources:
                  - s3:ListBucket
                 Resource:
                   - !Join ["", ["arn:aws:s3:::", !Ref RecordServiceS3Bucket]]
-                  - !Join ["", ["arn:aws:s3:::", !Ref RecordServiceS3Bucket, "/*"]]
+                  - !Join ["", ["arn:aws:s3:::", !Ref RecordServiceS3Bucket, "/*"]]          
+        - PolicyName: CloudWatchLog
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - 'ec2:DescribeTags'
+                  - 'cloudwatch:PutMetricData'
+                  - 'logs:PutLogEvents'
+                  - 'logs:DescribeLogStreams'
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:DescribeVolumes'
+                  - 'logs:DescribeLogGroups'
+                Resource: "*"
+              - Effect: Allow
+                Action: 
+                  - 'ssm:PutParameter'
+                  - 'ssm:GetParameter'
+                Resource: "arn:aws:ssm:::parameter/AmazonCloudWatch-*"
+
 
 
   RootInstanceProfile:
