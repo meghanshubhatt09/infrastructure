@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: VPCTemplate
-Parameters:
 
+Parameters:
   UserData:
     Type: String
     Default: ""
@@ -515,8 +515,6 @@ Resources:
                   - 'ssm:GetParameter'
                 Resource: "arn:aws:ssm:::parameter/AmazonCloudWatch-*"
 
-
-
   RootInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -524,6 +522,24 @@ Resources:
       Path: /
       Roles:
         - !Ref EC2CSYE6225Role
+
+  DynamoDBId:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: csye6225
+      AttributeDefinitions:
+        - AttributeName: "emailId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "emailId"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "1"
+        WriteCapacityUnits: "1"
+      TimeToLiveSpecification:
+        - AttributeName: "timeStamp"
+          Enabled: true
+
 
 
 Outputs:
