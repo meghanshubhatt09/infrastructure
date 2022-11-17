@@ -588,8 +588,6 @@ Outputs:
       Export: 
         Name: !Sub "EC2CSYE6225Role"
 
-
-
 # aws cloudformation create-stack --stack-name example --template-body file://example.yml 
 #--parameters ParameterKey=UserData,ParameterValue=$(base64 -w0 setup-lnxcfg-user)
 
