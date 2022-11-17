@@ -514,16 +514,16 @@ Resources:
                   - 'ssm:PutParameter'
                   - 'ssm:GetParameter'
                 Resource: "arn:aws:ssm:::parameter/AmazonCloudWatch-*"
-        - PolicyName: SNSTopic
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow 
-                Action: 
-                  - SNS:Subscribe
-                  - SNS:Publish
-                  - sns:CreateTopic
-                Resource: "*" 
+        # - PolicyName: SNSTopic
+        #   PolicyDocument:
+        #     Version: '2012-10-17'
+        #     Statement:
+        #       - Effect: Allow 
+        #         Action: 
+        #           - SNS:Subscribe
+        #           - SNS:Publish
+        #           - sns:CreateTopic
+        #         Resource: "*" 
         - PolicyName: DynamoDbEC2
           PolicyDocument:
             Version: "2012-10-17"
@@ -586,7 +586,7 @@ Outputs:
       Description: EC2 Execution Role logical Id
       Value: !Ref EC2CSYE6225Role
       Export: 
-        Name: !Sub "${AWS::StackName}-ec2ExecutionRoleId"
+        Name: !Sub "EC2CSYE6225Role"
 
 
 # aws cloudformation create-stack --stack-name example --template-body file://example.yml 
