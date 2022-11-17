@@ -85,7 +85,7 @@ Parameters:
   HostedZoneResource:
     Description: "DNS HOST NAME"
     Type: String
-    Default: demo.meghanshubhatt.me.
+    Default: prod.meghanshubhatt.me.
 
 
   # S3BucketName:
@@ -442,7 +442,7 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
     Properties:
-      BucketName: !Join ["-", [!Join ["-", ["meghanshu-buckets3-csye6225", !Select [4, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId]]]]]], !Ref AWS::Region]]
+      BucketName: !Join ["-", ['s3bucket', meghanshubhatt] ] #!Join ["-", [!Join ["-", ["meghanshu-buckets3-csye6225", !Select [4, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId]]]]]], !Ref AWS::Region]]
       
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -514,6 +514,29 @@ Resources:
                   - 'ssm:PutParameter'
                   - 'ssm:GetParameter'
                 Resource: "arn:aws:ssm:::parameter/AmazonCloudWatch-*"
+        - PolicyName: SNSTopic
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow 
+                Action: 
+                  - SNS:Subscribe
+                  - SNS:Publish
+                  - sns:CreateTopic
+                Resource: "*" 
+        - PolicyName: DynamoDbEC2
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: Allow
+                Action: 
+                  - 'dynamodb:BatchGetItem'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:BatchWriteItem'
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:UpdateItem'
+                Resource: !Join [ "", [ "arn:aws:dynamodb:", !Ref AWS::Region , ":", !Ref AWS::AccountId, ":table/csye6225" ] ]
 
   RootInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -537,8 +560,8 @@ Resources:
         ReadCapacityUnits: "1"
         WriteCapacityUnits: "1"
       TimeToLiveSpecification:
-        - AttributeName: "timeStamp"
-          Enabled: true
+        AttributeName: "ExpirationTime"
+        Enabled: true
 
 
 
@@ -549,6 +572,22 @@ Outputs:
     SubnetId:
       Description: List of public subnets
       Value: !Join [ ",", [ !Ref mySubnet1, !Ref mySubnet2, !Ref mySubnet3 ]]
+    dynamoDBTable:
+      Description: "DynamoDB Table Name"
+      Value: !Ref DynamoDBId
+      Export: 
+        Name: !Sub "${AWS::StackName}-dynamoDBTable"
+    dynamoDBArn:
+      Description: "DynamoDB Table Arn"
+      Value: !GetAtt DynamoDBId.Arn
+      Export: 
+        Name: !Sub "${AWS::StackName}-dynamoDBArn"
+    EC2CSYE6225Role:
+      Description: EC2 Execution Role logical Id
+      Value: !Ref EC2CSYE6225Role
+      Export: 
+        Name: !Sub "${AWS::StackName}-ec2ExecutionRoleId"
+
 
 # aws cloudformation create-stack --stack-name example --template-body file://example.yml 
 #--parameters ParameterKey=UserData,ParameterValue=$(base64 -w0 setup-lnxcfg-user)
