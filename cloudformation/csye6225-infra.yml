@@ -85,6 +85,7 @@ Parameters:
   HostedZoneResource:
     Description: "DNS HOST NAME"
     Type: String
+
     Default: prod.meghanshubhatt.me.
 
 
@@ -514,6 +515,7 @@ Resources:
                   - 'ssm:PutParameter'
                   - 'ssm:GetParameter'
                 Resource: "arn:aws:ssm:::parameter/AmazonCloudWatch-*"
+
         # - PolicyName: SNSTopic
         #   PolicyDocument:
         #     Version: '2012-10-17'
@@ -524,6 +526,8 @@ Resources:
         #           - SNS:Publish
         #           - sns:CreateTopic
         #         Resource: "*" 
+
+
         - PolicyName: DynamoDbEC2
           PolicyDocument:
             Version: "2012-10-17"
@@ -537,6 +541,7 @@ Resources:
                   - 'dynamodb:PutItem'
                   - 'dynamodb:UpdateItem'
                 Resource: !Join [ "", [ "arn:aws:dynamodb:", !Ref AWS::Region , ":", !Ref AWS::AccountId, ":table/csye6225" ] ]
+
 
   RootInstanceProfile:
     Type: AWS::IAM::InstanceProfile
