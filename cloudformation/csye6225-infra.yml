@@ -364,6 +364,10 @@ Resources:
 
   RDSDBinstance: 
     Type: AWS::RDS::DBInstance
+    DependsOn:
+      - rdsdbSubnetGroupId
+      - KmsRdsKey
+      - DBSecurityGroup
     Properties: 
       AllocatedStorage: "20"
       DBInstanceClass: "db.t3.micro"
@@ -380,9 +384,28 @@ Resources:
       DBParameterGroupName: !Ref MYSqlDBParameterGroup
       PubliclyAccessible: false
       DBName: csye6225
+      StorageEncrypted: true
+      KmsKeyId: !Ref KmsRdsKey
     DeletionPolicy: Delete
 
-
+  KmsRdsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: Encryption Key for RDS
+      KeyPolicy:
+        Version: "2012-10-17"
+        Id: key-default-rds
+        Statement:
+          - Sid: Encryption for RDS
+            Effect: Allow
+            Principal:
+              AWS: !Join 
+                - ''
+                - - 'arn:aws:iam::'
+                  - !Ref 'AWS::AccountId'
+                  - ':root'
+            Action: 'kms:*'
+            Resource: '*'
 
   # Volume:
   #   Type: AWS::EC2::Volume

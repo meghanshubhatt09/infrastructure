@@ -36,6 +36,8 @@ Parameters:
 Resources:
   asgLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
+    DependsOn:
+      - EBSKmsKey
     Properties:
       LaunchTemplateName: !Sub '${AWS::StackName}-launch-template'
       LaunchTemplateData:
@@ -46,6 +48,7 @@ Resources:
             VolumeType: "gp2"
             DeleteOnTermination: true
             Encrypted: "true"
+            KmsKeyId: !Ref EBSKmsKey
         ImageId: !Ref AMIID
         InstanceType: t2.micro
         KeyName: !Ref KeyName
@@ -107,6 +110,37 @@ Resources:
   #           !Sub "EC2CSYE6225Role"
 
   ### S3 BUCKET CREATION
+
+  EBSKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: !Sub KMS Key for EBS
+      KeyPolicy:
+        Version: "2012-10-17"
+        Id: "kms-key-for-ebs"      
+        Statement:
+          - Sid: "Allow IAM User permission for EBS"
+            Effect: Allow
+            Principal:
+              AWS: !Join 
+                - ''
+                - - 'arn:aws:iam::'
+                  - !Ref 'AWS::AccountId'
+                  - ':root'
+            Action:
+              - "kms:*"
+            Resource: "*"
+          - Sid: "Add service role"
+            Effect: Allow
+            Principal:
+              AWS: !Join 
+                - ''
+                - - 'arn:aws:iam::'
+                  - !Ref 'AWS::AccountId'
+                  - ':role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling'
+            Action:
+              - "kms:*"
+            Resource: "*"  
 
   
   asgWebApp:
