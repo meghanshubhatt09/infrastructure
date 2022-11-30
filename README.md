@@ -19,10 +19,12 @@ aws --region us-east-1 cloudformation create-stack --stack-name myvpc --template
 aws cloudformation create-stack --stack-name loadbalancing --template-body file://autoscaling_loadbalancer_stack.yml --parameters ParameterKey=AMIID,ParameterValue="ami-09741355fea93eb16" ParameterKey=KeyName,ParameterValue="aws" --capabilities CAPABILITY_NAMED_IAM 
 
 
+### DNS export command
 
-
-
-
+$ aws acm export-certificate \
+     --certificate-arn arn:aws:acm:region:account:certificate/certificate_ID \
+     --passphrase fileb://path-to-passphrase-file  \
+     | jq -r '"\(.Certificate)\(.CertificateChain)\(.PrivateKey)"'
 
 
 ## Assignment 7
